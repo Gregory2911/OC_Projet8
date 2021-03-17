@@ -3,11 +3,13 @@
 namespace App\Tests\Task;
 
 use App\Entity\Task;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TaskTest extends KernelTestCase
 {
+
     public function getEntity()
     {
         return (new Task())
