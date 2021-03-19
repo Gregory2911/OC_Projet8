@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\User;
+namespace App\Tests\Entity;
 
 use App\Entity\User;
 use Symfony\Component\Validator\ConstraintViolation;

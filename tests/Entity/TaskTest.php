@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Task;
+namespace App\Tests\Entity;
 
 use App\Entity\Task;
 use Symfony\Component\Validator\ConstraintViolation;
