@@ -14,8 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class TaskController extends AbstractController
 {
     /**
-     * @Route("/tasks", name="task_list")
-     * @IsGranted("ROLE_USER")
+     * @Route("/tasks", name="task_list")     
      */
     public function listAction(TaskRepository $repository)
     {

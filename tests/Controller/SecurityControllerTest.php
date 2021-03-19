@@ -29,4 +29,23 @@ class SecurityControllerTest extends WebTestCase
         $client->followRedirect();
         $this->assertSelectorExists('.alert.alert-danger');
     }
+
+    public function testSuccessfullLogin()
+    {
+        $client = static::createClient();
+        /*
+        $crawler = $client->request('GET', '/login');
+        $form = $crawler->selectButton('Sign in')->form([
+            'username' => 'admin',
+            'password' => 'password'
+        ]);
+        $client->submit($form);*/
+        $csrfToken = $client->getContainer()->get('security.csrf.token_manager')->getToken('authenticate');
+        $client->request('POST', '/login', [
+            '_csrf_token' => $csrfToken,
+            'username' => 'admin',
+            'password' => 'password'
+        ]);
+        $this->assertResponseRedirects('/');
+    }
 }
