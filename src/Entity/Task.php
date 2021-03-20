@@ -43,7 +43,6 @@ class Task
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull
      */
     private $user;
 
