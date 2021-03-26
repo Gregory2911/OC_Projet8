@@ -54,7 +54,7 @@ class TaskControllerTest extends WebTestCase
         $this->assertStringContainsString('contenu test', $client->getResponse()->getContent());
         
         $task = $this->loadTask('titre test');
-        $this->assertEquals($user->getUserName(), $task->getUser()->getUserName());
+        $this->assertEquals($user->getId(), $task->getUser()->getId());
     }
 
     public function testEditTask()
@@ -62,7 +62,7 @@ class TaskControllerTest extends WebTestCase
         $client = static::createClient();
 
         $task = $this->loadTask('titre test');
-        
+        //récupérer le user de la tache
         $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $form = $crawler->selectButton('Modifier')->form([
             'task[title]' => 'titre test modifié',
@@ -73,6 +73,7 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertStringContainsString('titre test modifié', $client->getResponse()->getContent());
         $this->assertStringContainsString('contenu test modifié', $client->getResponse()->getContent());
+        //controler que le user est toujours le même
     }
 
     public function testToggleTask()
@@ -102,6 +103,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testDeleteAnonymousTaskWithNotAdminUser()
     {
+        //sur le role_admin
         $client = static::createClient();
 
         $user = $this->createUser('anonymous');        
@@ -120,4 +122,6 @@ class TaskControllerTest extends WebTestCase
         $client->followRedirect();               
         $this->assertSelectorTextContains('a', 'titre test anonyme');
     }
+
+    //faire les tests de création modif et suppression si pas connecté
 }
