@@ -39,10 +39,9 @@ class TaskControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $user = new User();
-        $user = $this->createUser('admin');
-        
+        $user = $this->createUser('admin');        
         $this->login($client, $user);
+
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form([
             'task[title]' => 'titre test',
@@ -53,13 +52,15 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertStringContainsString('titre test', $client->getResponse()->getContent());
         $this->assertStringContainsString('contenu test', $client->getResponse()->getContent());
+        
+        $task = $this->loadTask('titre test');
+        $this->assertEquals($user->getUserName(), $task->getUser()->getUserName());
     }
 
     public function testEditTask()
     {
         $client = static::createClient();
 
-        $task = new Task();
         $task = $this->loadTask('titre test');
         
         $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
@@ -78,24 +79,45 @@ class TaskControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $task = new Task();
         $task = $this->loadTask('titre test modifié');
 
         $client->request('GET', '/tasks/' . $task->getId() . '/toggle');
         $client->followRedirect();
-        // $this->assertContains("a bien été marquée", $client->getResponse()->getContent());
         $this->assertEquals(1, $task->isDone());
     }
-    /*
-    public function testTasksDeletePageWithBadUser()
+    
+    public function testDeleteTaskWithBadUser()
     {
         $client = static::createClient();
-        $client->request('GET', '/tasks/11/delete');
-        $userRepository = static::$container->get(UserRepository::class);
-        $user = $userRepository->findOneByUsername('admin');
+
+        $user = $this->createUser('anonymous');
         $this->login($client, $user);
-        $this->assertResponseRedirects('/tasks');
-        $this->assertSelectorExists('.alert.alert-danger');
+        $task = $this->loadTask('titre test modifié');
+
+        $client->request('GET', '/tasks/' . $task->getId() . '/delete');
+        $client->followRedirect();               
+        $this->assertSelectorTextContains('a', 'titre test modifié');
         //voir si dans la liste des taches la tache existe encore
-    }*/
+    }
+
+    public function testDeleteAnonymousTaskWithNotAdminUser()
+    {
+        $client = static::createClient();
+
+        $user = $this->createUser('anonymous');        
+        $this->login($client, $user);
+        
+        $crawler = $client->request('GET', '/tasks/create');
+        $form = $crawler->selectButton('Ajouter')->form([
+            'task[title]' => 'titre test anonyme',
+            'task[content]' => 'contenu test anonyme'
+        ]);
+        $client->submit($form);
+
+        $task = $this->loadTask('titre test anonyme');
+
+        $client->request('GET', '/tasks/' . $task->getId() . '/delete');
+        $client->followRedirect();               
+        $this->assertSelectorTextContains('a', 'titre test anonyme');
+    }
 }

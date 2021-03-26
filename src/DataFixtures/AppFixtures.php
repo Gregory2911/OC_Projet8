@@ -31,6 +31,15 @@ class AppFixtures extends Fixture
 
         $manager->persist($admin);
 
+        //Creation of the anonymous user
+        $anonymous = new User();
+        $anonymous->setUsername('anonymous');
+        $anonymous->setEmail('anonymous@anonymous.com');
+        $anonymous->setPassword($this->encoder->encodePassword($admin, "password"));
+        $anonymous->setRoles(array('ROLE_USER'));
+
+        $manager->persist($anonymous);
+
         $users = array();
         
         //Creation of 5 users
