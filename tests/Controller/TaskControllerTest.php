@@ -63,7 +63,9 @@ class TaskControllerTest extends WebTestCase
 
         $task = $this->loadTask('titre test');
         //récupérer le user de la tache
-        $idUserTask = $task->getUser()->getId();
+        $idUserTask = $task->getUser()->getId();     
+
+        $this->login($client, $task->getUser());
 
         $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $form = $crawler->selectButton('Modifier')->form([

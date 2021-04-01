@@ -23,6 +23,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/create", name="task_create")
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
     public function createAction(Request $request)
     {
@@ -50,6 +51,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/{id}/edit", name="task_edit")
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
     public function editAction(Task $task, Request $request)
     {
@@ -89,6 +91,10 @@ class TaskController extends AbstractController
      */
     public function deleteTaskAction(Task $task)
     {
+        if($this->denyAccessUnlessGranted('TASK_DELETE', $task) == false){
+            return $this->redirectToRoute('task_list');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->remove($task);
         $em->flush();

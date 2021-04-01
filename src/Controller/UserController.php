@@ -26,8 +26,11 @@ class UserController extends AbstractController
      */
     public function createAction(Request $request, UserPasswordEncoderInterface $encoder)
     {
+
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
+
+        $this->denyAccessUnlessGranted('USER_CREATE', $user);
 
         $form->handleRequest($request);
 
