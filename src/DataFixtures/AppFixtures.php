@@ -53,6 +53,16 @@ class AppFixtures extends Fixture
 
             $manager->persist($user);
         }
+        
+        //Creation of a test task
+        $task = new Task();
+        $task->setTitle('test task');
+        $task->setContent($faker->paragraph());
+        $task->setCreatedAt($faker->dateTimeBetween('-2 months', '-1 months'));
+        $task->setUser($users[mt_rand(0, count($users)-1)]);
+        $task->isDone(0);
+            
+        $manager->persist($task);
 
         //Creation of 10 tasks
         for($i = 0; $i < 10; $i++){

@@ -63,6 +63,8 @@ class TaskControllerTest extends WebTestCase
 
         $task = $this->loadTask('titre test');
         //récupérer le user de la tache
+        $idUserTask = $task->getUser()->getId();
+
         $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $form = $crawler->selectButton('Modifier')->form([
             'task[title]' => 'titre test modifié',
@@ -71,9 +73,12 @@ class TaskControllerTest extends WebTestCase
         $client->submit($form);
         $client->followRedirect();
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        //controler que la tache modifié est bien passée en paramètre de la page
         $this->assertStringContainsString('titre test modifié', $client->getResponse()->getContent());
         $this->assertStringContainsString('contenu test modifié', $client->getResponse()->getContent());
-        //controler que le user est toujours le même
+        //controler que le user de la tache modifiée est toujours le même
+        $taskEdit = $this->loadTask('titre test modifié');
+        $this->assertEquals($idUserTask, $taskEdit->getUser()->getId());
     }
 
     public function testToggleTask()
@@ -103,11 +108,11 @@ class TaskControllerTest extends WebTestCase
 
     public function testDeleteAnonymousTaskWithNotAdminUser()
     {
-        //sur le role_admin
         $client = static::createClient();
 
-        $user = $this->createUser('anonymous');        
+        $user = $this->createUser('anonymous');
         $this->login($client, $user);
+        $user->setRoles(array('ROLE_USER'));
         
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form([
@@ -123,5 +128,26 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextContains('a', 'titre test anonyme');
     }
 
-    //faire les tests de création modif et suppression si pas connecté
+    public function testAddTaskWithNotAuthenticateUser()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/tasks/create');
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testEditTaskWithNotAuthenticateUser()
+    {
+        $client = static::createClient();
+        $task = $this->loadTask('test task');
+        $client->request('GET', '/tasks/' . $task->getId() . '/edit');
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testDeleteTaskWithNotAuthenticateUser()
+    {
+        $client = static::createClient();
+        $task = $this->loadTask('test task');
+        $client->request('GET', '/tasks/' . $task->getId() . '/delete');
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
 }
