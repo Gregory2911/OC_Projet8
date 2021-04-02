@@ -103,8 +103,9 @@ class TaskControllerTest extends WebTestCase
         $task = $this->loadTask('titre test modifié');
 
         $client->request('GET', '/tasks/' . $task->getId() . '/delete');
-        $client->followRedirect();               
-        $this->assertSelectorTextContains('a', 'titre test modifié');
+        //$client->followRedirect();               
+        //$this->assertSelectorTextContains('a', 'titre test modifié');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         //voir si dans la liste des taches la tache existe encore
     }
 
@@ -126,15 +127,16 @@ class TaskControllerTest extends WebTestCase
         $task = $this->loadTask('titre test anonyme');
 
         $client->request('GET', '/tasks/' . $task->getId() . '/delete');
-        $client->followRedirect();               
-        $this->assertSelectorTextContains('a', 'titre test anonyme');
+        // $client->followRedirect();               
+        // $this->assertSelectorTextContains('a', 'titre test anonyme');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testAddTaskWithNotAuthenticateUser()
     {
         $client = static::createClient();
         $client->request('GET', '/tasks/create');
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 
     public function testEditTaskWithNotAuthenticateUser()
@@ -142,7 +144,7 @@ class TaskControllerTest extends WebTestCase
         $client = static::createClient();
         $task = $this->loadTask('test task');
         $client->request('GET', '/tasks/' . $task->getId() . '/edit');
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 
     public function testDeleteTaskWithNotAuthenticateUser()
@@ -150,6 +152,6 @@ class TaskControllerTest extends WebTestCase
         $client = static::createClient();
         $task = $this->loadTask('test task');
         $client->request('GET', '/tasks/' . $task->getId() . '/delete');
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 }
