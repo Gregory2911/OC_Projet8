@@ -18,6 +18,8 @@ class UserController extends AbstractController
      */
     public function listAction(UserRepository $repository)
     {
+        $this->denyAccessUnlessGranted('USER_LIST', $this->getUser());
+
         return $this->render('user/list.html.twig', ['users' => $repository->findAll()]);
     }
 
@@ -26,11 +28,10 @@ class UserController extends AbstractController
      */
     public function createAction(Request $request, UserPasswordEncoderInterface $encoder)
     {
+        $this->denyAccessUnlessGranted('USER_CREATE', $this->getUser());
 
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-
-        $this->denyAccessUnlessGranted('USER_CREATE', $user);
+        $form = $this->createForm(UserType::class, $user);        
 
         $form->handleRequest($request);
 
@@ -55,6 +56,8 @@ class UserController extends AbstractController
      */
     public function editAction(User $user, Request $request, UserPasswordEncoderInterface $encoder)
     {
+        $this->denyAccessUnlessGranted('USER_EDIT', $this->getUser());
+
         $form = $this->createForm(UserType::class, $user);
 
         $form->handleRequest($request);

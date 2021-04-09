@@ -20,7 +20,7 @@ class UserVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['USER_CREATE', 'USER_EDIT'])
+        return in_array($attribute, ['USER_LIST', 'USER_CREATE', 'USER_EDIT'])
             && $subject instanceof \App\Entity\User;
     }
 
@@ -34,6 +34,11 @@ class UserVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
+            case 'USER_LIST':                
+                if ($this->security->isGranted('ROLE_ADMIN')) {
+                    return true;
+                }
+                break;
             case 'USER_CREATE':
                 if ($this->security->isGranted('ROLE_ADMIN')) {
                     return true;
