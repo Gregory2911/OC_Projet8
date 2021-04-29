@@ -58,13 +58,15 @@ class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('USER_EDIT', $this->getUser());
 
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, array('create' => false));
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $password = $encoder->encodePassword($user, $user->getPassword());
-            $user->setPassword($password);
+            if (isset($_POST['user']['password']['first']) && $_POST['user']['password']['first'] !== '') {
+                $password = $encoder->encodePassword($user, $_POST['user']['password']['first']);
+                $user->setPassword($password);
+            }            
 
             $this->getDoctrine()->getManager()->flush();
 
