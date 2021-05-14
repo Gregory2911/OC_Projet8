@@ -63,6 +63,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // dd($request->request->get('user'));
             if (isset($_POST['user']['password']['first']) && $_POST['user']['password']['first'] !== '') {
                 $newPassword = $_POST['user']['password']['first'];
                 $password = $encoder->encodePassword($user, $newPassword);
