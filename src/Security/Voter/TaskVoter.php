@@ -10,12 +10,12 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class TaskVoter extends Voter
 {
     private $security;
-    
+
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
-    
+
     protected function supports($attribute, $subject)
     {
         // replace with your own logic
@@ -35,13 +35,11 @@ class TaskVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TASK_EDIT':
-                
                 break;
             case 'TASK_CREATE':
-                
                 break;
             case 'TASK_DELETE':
-                if($user == $subject->getUser()){
+                if ($user == $subject->getUser()) {
                     return true;
                 }
 

@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class TaskController extends AbstractController
 {
     /**
-     * @Route("/tasks", name="task_list")     
+     * @Route("/tasks", name="task_list")
      */
     public function listAction(TaskRepository $repository)
     {
@@ -22,7 +22,7 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @Route("/tasks/isDone", name="task_list_isDone")     
+     * @Route("/tasks/isDone", name="task_list_isDone")
      */
     public function listActionIsDone(TaskRepository $repository)
     {
@@ -38,12 +38,11 @@ class TaskController extends AbstractController
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
-            
             $task->setCreatedAt(new \DateTime());
             $task->setUser($this->getUser());
-            
+
             $em = $this->getDoctrine()->getManager();
 
             $em->persist($task);
@@ -99,10 +98,8 @@ class TaskController extends AbstractController
      */
     public function deleteTaskAction(Task $task)
     {
-        if($this->denyAccessUnlessGranted('TASK_DELETE', $task) == false){
-            // return $this->redirectToRoute('task_list');
-            throw $this->createAccessDeniedException();
-        }
+        $this->denyAccessUnlessGranted('TASK_DELETE', $task);
+
         $em = $this->getDoctrine()->getManager();
         $em->remove($task);
         $em->flush();
