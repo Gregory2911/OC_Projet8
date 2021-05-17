@@ -129,7 +129,7 @@ class TaskControllerTest extends WebTestCase
         $client->request('GET', '/tasks/' . $task->getId() . '/delete');
         // $client->followRedirect();               
         // $this->assertSelectorTextContains('a', 'titre test anonyme');
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 
     public function testAddTaskWithNotAuthenticateUser()

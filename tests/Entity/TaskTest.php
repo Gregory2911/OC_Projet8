@@ -50,6 +50,6 @@ class TaskTest extends KernelTestCase
 
     public function testInvalidUser()
     {
-        $this->assertHasErrors($this->getEntity()->setUser(null), 1);
+        $this->assertHasErrors($this->getEntity()->setUser(null), 0);
     }
 }
