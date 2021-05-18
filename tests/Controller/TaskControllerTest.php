@@ -63,9 +63,10 @@ class TaskControllerTest extends WebTestCase
 
         $task = $this->loadTask('titre test');
         //récupérer le user de la tache
-        $idUserTask = $task->getUser()->getId();     
-
-        $this->login($client, $task->getUser());
+        $idUserTask = $task->getUser()->getId();
+        //connexion d'un utilisateur différent
+        $user = $this->createUser('anonymous');
+        $this->login($client, $user);
 
         $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $form = $crawler->selectButton('Modifier')->form([
@@ -78,7 +79,7 @@ class TaskControllerTest extends WebTestCase
         //controler que la tache modifié est bien passée en paramètre de la page
         $this->assertStringContainsString('titre test modifié', $client->getResponse()->getContent());
         $this->assertStringContainsString('contenu test modifié', $client->getResponse()->getContent());
-        //controler que le user de la tache modifiée est toujours le même
+        //controler que le user de la tache modifiée est toujours le même et non pas celui connecté
         $taskEdit = $this->loadTask('titre test modifié');
         $this->assertEquals($idUserTask, $taskEdit->getUser()->getId());
     }
@@ -103,19 +104,15 @@ class TaskControllerTest extends WebTestCase
         $task = $this->loadTask('titre test modifié');
 
         $client->request('GET', '/tasks/' . $task->getId() . '/delete');
-        //$client->followRedirect();               
-        //$this->assertSelectorTextContains('a', 'titre test modifié');
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        //voir si dans la liste des taches la tache existe encore
     }
 
-    public function testDeleteAnonymousTaskWithNotAdminUser()
+    public function testDeleteAnonymousTaskWithAdminUser()
     {
         $client = static::createClient();
 
         $user = $this->createUser('anonymous');
         $this->login($client, $user);
-        $user->setRoles(array('ROLE_USER'));
         
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form([
@@ -125,11 +122,15 @@ class TaskControllerTest extends WebTestCase
         $client->submit($form);
 
         $task = $this->loadTask('titre test anonyme');
-
-        $client->request('GET', '/tasks/' . $task->getId() . '/delete');
-        // $client->followRedirect();               
-        // $this->assertSelectorTextContains('a', 'titre test anonyme');
+        
+        //on tente de supprimer la tache avec l'admin user
+        $user = $this->createUser('admin');
+        $this->login($client, $user);
+        $client->request('GET', '/tasks/' . $task->getId() . '/delete');        
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        //on contrôle que le tache n'existe plus
+        $client->request('GET', '/tasks/' . $task->getId());
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
     public function testAddTaskWithNotAuthenticateUser()
